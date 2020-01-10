@@ -21,6 +21,11 @@ try:
 except:
     log.info("You are missing XLRD dependencies, installing now....")
     os.system('pip install xlrd')
+try:
+    import pyreadstat
+except:
+    log.info("You are missing .sav import dependencies, installing now....")
+    os.system('pip install pyreadstat')
 
 #Parse command line file
 inputFILE = ((sys.argv [1]))
@@ -36,7 +41,7 @@ if dataFILEext == ".csv":
     dfFILE = pd.read_csv(inputFILE)
 elif dataFILEext == ".sav":
     log.info('Reading in SPSS File: %s :',inputFILE )
-    dfFILE = pd.read_spss(inputFILE, encoding = 'utf-8')
+    dfFILE = pd.read_spss(inputFILE)
 elif dataFILEext == "xlsx":
     log.info('Reading in Excel File: %s :',inputFILE )
     dfFILE = pd.read_excel(inputFILE, encoding = "ISO-8859-1")
