@@ -4,7 +4,7 @@ This project is intended for inital QA of files prior to data analysis.
 
 Call script in terminal like so:
 
-** __ python dataQ.py "INPUT.csv" __ **
+**python dataQ.py "INPUT.csv"**
 
 
 
@@ -13,4 +13,4 @@ Call script in terminal like so:
 
 
 Note these files reference our master records held on private servers.
-Please contact admin for furthur information.
+Please contact admin for further information.
