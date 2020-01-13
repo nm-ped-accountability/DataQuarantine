@@ -9,7 +9,7 @@ import sys
 import os
 from clean import s_headers #custom function
 from check import masterschool_compare #custom function
-from logger import log
+from logger import log #custom function
 
 try:
     import pandas as pd
@@ -26,25 +26,37 @@ try:
 except:
     log.info("You are missing .sav import dependencies, installing now....")
     os.system('pip install pyreadstat')
+try:
+    import xlsxwriter
+except:
+    log.info("You are missing .xlsx write dependencies, installing now....")
+    os.system('pip install xlsxwriter')
+
+
 
 #Parse command line file
 inputFILE = ((sys.argv [1]))
 
-#Eval to see what file it is
+#debug!!!
+#inputFILE = "Student Snapshot Template Extractsmallv2.csv"
+
 # get the length of string
 length = len(inputFILE)
 dataFILEext = inputFILE[length - 4:]
 
-
+#Eval to see what file it is
 if dataFILEext == ".csv":
     log.info('Reading in CSV File: %s :',inputFILE )
     dfFILE = pd.read_csv(inputFILE)
+    ftype=".csv"
 elif dataFILEext == ".sav":
     log.info('Reading in SPSS File: %s :',inputFILE )
     dfFILE = pd.read_spss(inputFILE)
+    ftype=".sav"
 elif dataFILEext == "xlsx":
     log.info('Reading in Excel File: %s :',inputFILE )
     dfFILE = pd.read_excel(inputFILE, encoding = "ISO-8859-1")
+    ftype = ".xlsx"
 elif len(sys.argv) > 2:  #Lazy eval here to detect spaces TODO will block multiple parmeters
     log.info('I Detected a space in filename')
     log.info('Please enclose file name in quotations')
@@ -57,26 +69,38 @@ else:
     log.info('Terminating now. Hope your day gets better')
     exit()
 
-
+log.info("Proceeding to Clean File")
 #Move the file into standarize heading routine
-inputFILE_2=s_headers(dfFILE)
+[inputFILE_2, logVECTOR]=s_headers(dfFILE)
 
-
+log.info("Proceeding to Check File")
 #Move the file into checks against our master dictornary
-inputFILE_3=masterschool_compare(inputFILE_2)
+inputFILE_3=masterschool_compare(inputFILE_2, logVECTOR)
+
+#Last dataframe before write out be sure it is the one you want
+finalFILE = inputFILE_3
 
 #Make output file name
 log.info('Writing File........')
-finalFILEstr = 'dQ_'+inputFILE
+finalFILEstr = os.getcwd()+'\\dQ_'+inputFILE
 
-#Write final dataframe to file with new filename
-#ATTN: Be sure its the processed one you want.
-inputFILE_3.to_csv(finalFILEstr)
+print(finalFILEstr)
 
+#Output new modified file
+if ftype ==".csv":
+    finalFILE.to_csv(finalFILEstr)
+elif ftype ==".sav":
+    pyreadstat.write_sav(finalFILE, finalFILEstr)
+elif ftype ==".xlsx":
+    writer = pd.ExcelWriter(finalFILEstr, engine='xlsxwriter')
+    finalFILE.to_excel(writer, sheet_name='Sheet1')
+    writer.save()
 
 #FUTURE GOALS
-#Check District Code against District Name
-#index against Master schools
+#Add student data read and prcoessing
+#Student id handling
+#add on minority or other demographic issues (?)
+
 #For students, compare DOB against grade (what if students fail)
 #For schools, compare against grades applicable
 
